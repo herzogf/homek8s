@@ -1,0 +1,7 @@
+---
+  homek8s_gateway_network_switch_interface_name: eth0
+  #google dns as default upstream dns servers
+  homek8s_gateway_network_dns_upstream_servers:
+    - "8.8.8.8"
+    - "8.8.4.4"
+  homek8s_gateway_network_dhcp_lease_time: 12h

@@ -1,0 +1,13 @@
+---
+  - name: Install dnsmasq
+    apt:
+      name: dnsmasq
+    register: dnsmasq_install_result
+
+  - name: Configure DHCPD config file
+    template:
+      src: dhcpcd.conf.j2
+      dest: /etc/dhcpcd.conf
+      owner: root
+      group: netdev
+      mode: u=rw,g=rw,o=r

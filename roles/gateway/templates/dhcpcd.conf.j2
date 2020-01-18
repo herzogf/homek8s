@@ -1,0 +1,43 @@
+###################################################################################
+# homek8s: comments below are from the default sample dhcpcd.conf on raspbian linux
+###################################################################################
+# A sample configuration for dhcpcd.
+# See dhcpcd.conf(5) for details.
+
+# Inform the DHCP server of our hostname for DDNS.
+hostname
+
+# Use the hardware address of the interface for the Client ID.
+clientid
+
+# Persist interface configuration when dhcpcd exits.
+persistent
+
+# Rapid commit support.
+# Safe to enable by default because it requires the equivalent option set
+# on the server to actually work.
+option rapid_commit
+
+# A list of options to request from the DHCP server.
+option domain_name_servers, domain_name, domain_search, host_name
+option classless_static_routes
+# Respect the network MTU. This is applied to DHCP routes.
+option interface_mtu
+
+# A ServerID is required by RFC2131.
+require dhcp_server_identifier
+
+# Generate SLAAC address using the Hardware Address of the interface
+#slaac hwaddr
+# OR generate Stable Private IPv6 Addresses based from the DUID
+slaac private
+
+#static ip configuration
+interface {{ homek8s_gateway_network_switch_interface_name }}
+static ip_address={{ homek8s_gateway_network_switch_interface_ip }}/24
+static routers={{ homek8s_gateway_network_switch_interface_ip }}
+#bring interface up all the time, see https://www.raspberrypi.org/forums/viewtopic.php?t=207056#p1282098
+nolink
+#prevent default route over eth0 (or whatever the interface to the dedicated switch is called)
+#seeh ttps://unix.stackexchange.com/a/333610
+nogateway
