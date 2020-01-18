@@ -1,0 +1,28 @@
+#This is an example inventory file for the homek8s installer.
+#It sets up a homek8s cluster containing 1 gateway, 1 master and 2 nodes.
+# Infrastructure setup:
+#   - gateway (raspi pi) has wifi access to the internet / external world
+#   - gateway and other nodes are connected to a dedicated ethernet switch (no router i.e. no DHCP et.al.)
+#   - all nodes running debian-based linux (e.g. raspbian for gateway and pure debian for the k8s nodes)
+#   - k8s nodes (master, worker nodes) are based on x86_64 architecture
+
+[masters]
+x86-k8s-master-1
+
+[nodes]
+x86-k8s-master-1 ansible_ssh_host=192.168.2.10
+x86-k8s-node-1   ansible_ssh_host=192.168.2.11
+x86-k8s-node-2   ansible_ssh_host=192.168.2.12
+
+[nfs]
+x86-k8s-master-1
+
+[homek8s:children]
+masters
+nodes
+nfs
+
+[homek8s:vars]
+########################################################
+# common configs for the cluster
+########################################################
