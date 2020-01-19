@@ -11,3 +11,21 @@
       owner: root
       group: netdev
       mode: u=rw,g=rw,o=r
+      backup: yes
+
+  - name: Configure dnsmasq config file
+    template:
+      src: dnsmasq.conf.j2
+      dest: /etc/dnsmasq.conf
+      owner: root
+      group: root
+      mode: u=rw,g=r,o=r
+      backup: yes
+
+# add nodes to /etc/hosts
+
+  - name: Allow ipv4 forwarding for nodes
+    sysctl:
+      name: net.ipv4.ip_forward
+      value: '1'
+      sysctl_set: yes

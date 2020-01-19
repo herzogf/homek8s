@@ -16,9 +16,10 @@
       path: /etc/default/keyboard
       regexp: '^XKBLAYOUT='
       line: XKBLAYOUT="{{ homek8s_os_base_xkblayout }}"
-    when: homek8s_os_base_xkblayout|bool
+      backup: yes
+    when: homek8s_os_base_xkblayout is defined
 
   - name: Set timezone
     timezone:
-      name: {{ homek8s_os_base_timezone }}
-    when: homek8s_os_base_timezone|bool
+      name: "{{ homek8s_os_base_timezone }}"
+    when: homek8s_os_base_timezone is defined

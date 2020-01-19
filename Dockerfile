@@ -10,3 +10,4 @@ RUN apt-get update && apt-get install -y \
  COPY playbooks /etc/ansible/playbooks
 
  ENTRYPOINT [ "ansible-playbook" ]
+ CMD [ "playbooks/site.yml" ]

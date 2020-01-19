@@ -1,0 +1,5 @@
+# This playbook installs and configures the homek8s cluster
+---
+  - hosts: gateway
+    roles:
+      - gateway
