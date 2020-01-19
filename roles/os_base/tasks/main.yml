@@ -6,10 +6,7 @@
   
   - name: Install basic tools
     apt:
-      name: "{{ item }}"
-    with_items:
-    - tmux
-    - vim
+      name: [ 'tmux', 'vim' ]
 
   - name: Set keyboard layout
     lineinfile:

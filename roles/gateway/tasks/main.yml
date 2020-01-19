@@ -12,6 +12,8 @@
       group: netdev
       mode: u=rw,g=rw,o=r
       backup: yes
+    notify:
+      - restart dhcpcd
 
   - name: Configure dnsmasq config file
     template:
@@ -21,11 +23,59 @@
       group: root
       mode: u=rw,g=r,o=r
       backup: yes
+    notify:
+      - restart dnsmasq
 
-# add nodes to /etc/hosts
+# FIXME: add nodes to /etc/hosts
 
   - name: Allow ipv4 forwarding for nodes
     sysctl:
       name: net.ipv4.ip_forward
       value: '1'
       sysctl_set: yes
+
+  # Set iptables rules to forward nodes' traffic to external network
+  # see https://blog.sebastian-martens.de/2017/02/configure-raspberry-pi-as-wlan-to-ethernet-bridge/
+
+  # raw rule: iptables -t nat -A POSTROUTING -o wlan0 -j MASQUERADE
+  - name: Add iptables rule for MASQUERADE over external interface
+    iptables:
+      table: nat
+      action: append
+      chain: POSTROUTING
+      out_interface: wlan0 # FIXME: make configurable
+      jump: MASQUERADE
+    notify:
+      - save iptables
+
+  # raw rule: iptables -A FORWARD -i wlan0 -o eth0 -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+  # original rule documented in the link above uses "-m state --state RELATED,ESTABLISHED" instead of conntrack;
+  # if conntrack does not work, switch back to -m state.
+  # original rule on raspi pi: iptables -A FORWARD -i wlan0 -o eth0 -m state --state RELATED,ESTABLISHED -j ACCEPT
+  - name: Add iptables rule for accepting responses to forwarded connections
+    iptables:
+      action: append
+      chain: FORWARD
+      in_interface: "{{ homek8s_gateway_network_external_interface_name }}"
+      out_interface: "{{ homek8s_gateway_network_switch_interface_name }}"
+      ctstate: ESTABLISHED,RELATED
+      jump: ACCEPT
+    notify:
+      - save iptables
+
+  # raw rule: iptables -A FORWARD -i eth0 -o wlan0 -j ACCEPT
+  - name: Add iptables rule for forwarding traffic from dedicated switch interface to external interface
+    iptables:
+      action: append
+      chain: FORWARD
+      in_interface: "{{ homek8s_gateway_network_switch_interface_name }}"
+      out_interface: "{{ homek8s_gateway_network_external_interface_name }}"
+      jump: ACCEPT
+    notify:
+      - save iptables
+
+  - name: Restore iptables rules during boot
+    lineinfile:
+      path: /etc/rc.local
+      line: iptables-restore < /etc/iptables.ipv4.nat
+      insertbefore: exit 0

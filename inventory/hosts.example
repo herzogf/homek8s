@@ -47,18 +47,22 @@ ansible_user=pi
 # - the nodes between 192.168.2.10 and 192.168.2.49
 # - dynamic IPs between 192.168.2.50 and 192.168.2.100
 
+#Specify the gateway's network interface to the dedicated node switch
+#defaults to eth0
+#homek8s_gateway_network_switch_interface_name=et0h
+
 #Specify the gateway's static ip address to the dedicated node switch
 homek8s_gateway_network_switch_interface_ip="192.168.2.1"
+
+#Specify the gateway's network interface for external traffic (e.g. the wifi to your internet router)
+#defaults to wlan0
+#homek8s_gateway_network_external_interface_name=wlan0
 
 #Specify the DHCP range from which IP addresses are given to
 #devices NOT listed in the nodes group
 #(so applies only to non-node devices plugged into the dedicated node switch)
 homek8s_gateway_network_dhcp_range_from=192.168.2.50
 homek8s_gateway_network_dhcp_range_to=192.168.2.100
-
-#Specify the gateway's network interface to the dedicated node switch
-#defaults to eth0
-#homek8s_gateway_network_switch_interface_name=et0h
 
 #Specify the keyboard layout for all nodes
 #homek8s_os_base_xkblayout=de
