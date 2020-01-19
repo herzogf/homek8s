@@ -1,0 +1,22 @@
+---
+  - name: Update all installed packages
+    apt:
+      upgrade: yes
+      update_cache: yes
+  
+  - name: Install basic tools
+    apt:
+      name: [ 'tmux', 'vim' ]
+
+  - name: Set keyboard layout
+    lineinfile:
+      path: /etc/default/keyboard
+      regexp: '^XKBLAYOUT='
+      line: XKBLAYOUT="{{ homek8s_os_base_xkblayout }}"
+      backup: yes
+    when: homek8s_os_base_xkblayout is defined
+
+  - name: Set timezone
+    timezone:
+      name: "{{ homek8s_os_base_timezone }}"
+    when: homek8s_os_base_timezone is defined

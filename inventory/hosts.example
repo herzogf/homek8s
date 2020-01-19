@@ -1,0 +1,71 @@
+#This is an example inventory file for the homek8s installer.
+#It sets up a homek8s cluster containing 1 gateway, 1 master and 2 nodes.
+# Infrastructure setup:
+#   - gateway (raspi pi) has wifi access to the internet / external world
+#   - gateway and other nodes are connected to a dedicated ethernet switch (no router i.e. no DHCP et.al.)
+#   - all nodes running debian-based linux (e.g. raspbian for gateway and pure debian for the k8s nodes)
+#   - k8s nodes (master, worker nodes) are based on x86_64 architecture
+
+[gateway]
+#FIXME: ssh-copy-id?
+rpi-gateway ansible_ssh_host=192.168.0.101 ansible_user=pi
+
+[masters]
+x86-k8s-master-1
+
+[nodes]
+#FIXME: generate ssh key on gateway and ssh-copy-id
+x86-k8s-master-1 ansible_ssh_host=192.168.2.10
+x86-k8s-node-1   ansible_ssh_host=192.168.2.11
+x86-k8s-node-2   ansible_ssh_host=192.168.2.12
+
+[nfs]
+x86-k8s-master-1
+
+[homek8s:children]
+gateway
+masters
+nodes
+nfs
+
+[nodes:vars]
+#Specify the jump server to to connect to the nodes, i.e. the gateway
+ansible_ssh_common_args="-J pi@192.168.0.101"
+#Specify the user on the nodes for the ssh connection
+ansible_user=pi
+
+[homek8s:vars]
+########################################################
+# common configs for the cluster
+########################################################
+#all optional parameters are commented out below
+#(i.e. parameters set in this example inventory are mandatory)
+
+#The following parameters assume that the dedicated network switch
+#covers the IP range 192.168.2.1 - 192.168.2.255 with
+# - the gateway being 192.168.2.1
+# - the nodes between 192.168.2.10 and 192.168.2.49
+# - dynamic IPs between 192.168.2.50 and 192.168.2.100
+
+#Specify the gateway's network interface to the dedicated node switch
+#defaults to eth0
+#homek8s_gateway_network_switch_interface_name=et0h
+
+#Specify the gateway's static ip address to the dedicated node switch
+homek8s_gateway_network_switch_interface_ip="192.168.2.1"
+
+#Specify the gateway's network interface for external traffic (e.g. the wifi to your internet router)
+#defaults to wlan0
+#homek8s_gateway_network_external_interface_name=wlan0
+
+#Specify the DHCP range from which IP addresses are given to
+#devices NOT listed in the nodes group
+#(so applies only to non-node devices plugged into the dedicated node switch)
+homek8s_gateway_network_dhcp_range_from=192.168.2.50
+homek8s_gateway_network_dhcp_range_to=192.168.2.100
+
+#Specify the keyboard layout for all nodes
+#homek8s_os_base_xkblayout=de
+
+#Specify the timezone for all nodes
+#homek8s_os_base_timezone=Europe/Berlin
