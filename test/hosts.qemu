@@ -1,14 +1,8 @@
-#This is an example inventory file for the homek8s installer.
-#It sets up a homek8s cluster containing 1 gateway, 1 master and 2 nodes.
-# Infrastructure setup:
-#   - gateway (raspi pi) has wifi access to the internet / external world
-#   - gateway and other nodes are connected to a dedicated ethernet switch (no router i.e. no DHCP et.al.)
-#   - all nodes running debian-based linux (e.g. raspbian for gateway and pure debian for the k8s nodes)
-#   - k8s nodes (master, worker nodes) are based on x86_64 architecture
+#This inventory file is used for automated tests against qemu virtual machines.
+#It sets up a homek8s cluster containing 1 gateway, 1 master and 1 node.
 
 [gateway]
-#FIXME: ssh-copy-id?
-rpi-gateway ansible_ssh_host=192.168.0.101 ansible_user=pi
+rpi-gateway ansible_ssh_host=localhost ansible_ssh_port=5022 ansible_user=pi ansible_ssh_pass=raspberry ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
 
 [masters]
 x86-k8s-master-1
@@ -30,7 +24,7 @@ nfs
 
 [nodes:vars]
 #Specify the jump server to to connect to the nodes, i.e. the gateway
-ansible_ssh_common_args="-J pi@192.168.0.101"
+ansible_ssh_common_args="-J pi@localhost:5022"
 #Specify the user on the nodes for the ssh connection
 ansible_user=pi
 
