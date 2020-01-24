@@ -1,2 +1,4 @@
 #exclude ansible hosts file
 hosts
+temp
+tmp

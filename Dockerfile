@@ -3,7 +3,7 @@ FROM debian:buster
 WORKDIR /etc/ansible
 
 RUN apt-get update && apt-get install -y \
-    ansible python3-apt openssh-client \
+    ansible python3-apt openssh-client sshpass \
  && rm -rf /var/lib/apt/lists/*
 
  COPY roles /etc/ansible/roles

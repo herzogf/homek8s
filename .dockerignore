@@ -1,0 +1,4 @@
+#exclude unneccessary files during docker build to speed things up
+.github
+inventory
+test
