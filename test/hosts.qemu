@@ -40,8 +40,7 @@ ansible_become=yes
 #The following parameters assume that the dedicated network switch
 #covers the IP range 192.168.2.1 - 192.168.2.255 with
 # - the gateway being 192.168.2.1
-# - the nodes between 192.168.2.10 and 192.168.2.49
-# - dynamic IPs between 192.168.2.50 and 192.168.2.100
+# - the nodes between 192.168.2.100 and 192.168.2.200
 
 #Specify the gateway's network interface to the dedicated node switch
 #defaults to eth0
@@ -52,16 +51,25 @@ homek8s_gateway_network_switch_interface_ip="192.168.2.1"
 
 #Specify the gateway's network interface for external traffic (e.g. the wifi to your internet router)
 #defaults to wlan0
-#homek8s_gateway_network_external_interface_name=wlan0
+homek8s_gateway_network_external_interface_name=eth1
 
-#Specify the DHCP range from which IP addresses are given to
-#devices NOT listed in the nodes group
-#(so applies only to non-node devices plugged into the dedicated node switch)
-homek8s_gateway_network_dhcp_range_from=192.168.2.50
-homek8s_gateway_network_dhcp_range_to=192.168.2.100
+#Specify the DHCP range from which IP addresses are given to k8s nodes
+#range_prefix specifies the first three ip address segments of the dynamic dhcp range
+#MUST END WITH a dot (.)
+#(must match to homek8s_gateway_network_switch_interface_ip)
+#with the following default config k8s nodes will get ip addresses in the range 192.168.2.100 - 192.168.2.110
+homek8s_gateway_network_dhcp_range_prefix=192.168.2.
+#start number for the last ip address segment of the dhcp range
+homek8s_gateway_network_dhcp_range_from=100
+#last number for the last ip address segment of the dhcp range
+homek8s_gateway_network_dhcp_range_to=110
 
 #Specify the keyboard layout for all nodes
 #homek8s_os_base_xkblayout=de
 
 #Specify the timezone for all nodes
 #homek8s_os_base_timezone=Europe/Berlin
+
+#Enable / disable apt-get upgrade during node provisioning
+#defaults to true (upgrade performed)
+homek8s_os_base_apt_upgrade=false

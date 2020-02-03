@@ -1,30 +1,34 @@
 ---
-  - name: Update all installed packages
-    apt:
-      upgrade: yes
-      update_cache: yes
-  
-  - name: Install basic tools
-    apt:
-      name: [ 'tmux', 'vim' ]
+- name: apt-get update
+  apt:
+    update_cache: yes
 
-  - name: Set keyboard layout
-    lineinfile:
-      path: /etc/default/keyboard
-      regexp: '^XKBLAYOUT='
-      line: XKBLAYOUT="{{ homek8s_os_base_xkblayout }}"
-      backup: yes
-    when: homek8s_os_base_xkblayout is defined
+- name: Update all installed packages
+  apt:
+    upgrade: yes
+  when: homek8s_os_base_apt_upgrade | default(True) | bool
 
-  - name: Set timezone
-    timezone:
-      name: "{{ homek8s_os_base_timezone }}"
-    when: homek8s_os_base_timezone is defined
+- name: Install basic tools
+  apt:
+    name: [ 'tmux', 'vim' ]
 
-  - name: Switch iptables to iptables-legacy (needed for k3s)
-    alternatives:
-      name: "{{ item.name }}"
-      path: "{{ item.path }}"
-    with_items:
-      - { name: iptables, path: /usr/sbin/iptables-legacy }
-      - { name: ip6tables, path: /usr/sbin/ip6tables-legacy }
+- name: Set keyboard layout
+  lineinfile:
+    path: /etc/default/keyboard
+    regexp: '^XKBLAYOUT='
+    line: XKBLAYOUT="{{ homek8s_os_base_xkblayout }}"
+    backup: yes
+  when: homek8s_os_base_xkblayout is defined
+
+- name: Set timezone
+  timezone:
+    name: "{{ homek8s_os_base_timezone }}"
+  when: homek8s_os_base_timezone is defined
+
+- name: Switch iptables to iptables-legacy (needed for k3s)
+  alternatives:
+    name: "{{ item.name }}"
+    path: "{{ item.path }}"
+  with_items:
+    - { name: iptables, path: /usr/sbin/iptables-legacy }
+    - { name: ip6tables, path: /usr/sbin/ip6tables-legacy }
