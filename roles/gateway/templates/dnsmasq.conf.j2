@@ -16,15 +16,6 @@ domain-needed # Don't forward short names
 # Never forward addresses in the non-routed address spaces.
 bogus-priv
 # Assign IP addresses between homek8s_gateway_network_dhcp_range_from
-# and homek8s_gateway_network_dhcp_range_from
-# with a homek8s_gateway_network_dhcp_lease_time hour lease time
-dhcp-range={{ homek8s_gateway_network_dhcp_range_from }},{{ homek8s_gateway_network_dhcp_range_to }},{{ homek8s_gateway_network_dhcp_lease_time }}
-
-# set static IPs for nodes
-# sample line: dhcp-host=x86-k8s-master-1,192.168.2.10
-{% for homek8s_host in groups['homek8s'] %}
-{% if homek8s_host not in groups['gateway'] %}
-dhcp-host={{ homek8s_host }},{{ hostvars[homek8s_host]['ansible_ssh_host'] }}
-{% endif %}
-{% endfor %}
-
+# and homek8s_gateway_network_dhcp_range_to
+# with an infinite lease time
+dhcp-range={{ homek8s_gateway_network_dhcp_range_prefix }}{{ homek8s_gateway_network_dhcp_range_from }},{{ homek8s_gateway_network_dhcp_range_prefix }}{{ homek8s_gateway_network_dhcp_range_to }},infinite
