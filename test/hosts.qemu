@@ -68,7 +68,7 @@ homek8s_gateway_network_dhcp_range_to=110
 #homek8s_os_base_xkblayout=de
 
 #Specify the timezone for all nodes
-#homek8s_os_base_timezone=Europe/Berlin
+homek8s_os_base_timezone=Europe/Berlin
 
 #Enable / disable apt-get upgrade during node provisioning
 #defaults to true (upgrade performed)

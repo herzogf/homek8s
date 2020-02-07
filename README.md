@@ -25,9 +25,9 @@ To test locally on a current debian based linux system run the following command
 # installs qemu, downloads raspbian and needed custom raspi kernels
 ./test/native_install_prereqs.sh
 
-# starts the virtual machines with qemu
+# starts the raspbian / gateway with qemu
 # -> at the moment this blocks the shell session and shows the gateway VM's console
-./test/native_run_machines.sh
+./test/native_run_gateway.sh
 
 # in a new shell session:
 # start homek8s targeting the virtual machines
