@@ -7,7 +7,7 @@ listen-address={{ homek8s_gateway_network_switch_interface_ip }}
 bind-interfaces
 no-resolv
 
-#set upstream dns servers to forward dns requests to
+# set upstream dns servers to forward dns requests to
 {% for dns_server in homek8s_gateway_network_dns_upstream_servers %}
 server={{ dns_server }}
 {% endfor %}
@@ -19,3 +19,16 @@ bogus-priv
 # and homek8s_gateway_network_dhcp_range_to
 # with an infinite lease time
 dhcp-range={{ homek8s_gateway_network_dhcp_range_prefix }}{{ homek8s_gateway_network_dhcp_range_from }},{{ homek8s_gateway_network_dhcp_range_prefix }}{{ homek8s_gateway_network_dhcp_range_to }},infinite
+
+# activate pxe on dhcp server
+dhcp-boot=pxelinux.0
+dhcp-match=set:X86-64_EFI,option:client-arch,7
+dhcp-boot=tag:X86-64_EFI,debian-installer/amd64/bootnetx64.efi
+#pxe-service=x86PC, "Install Linux", pxelinux
+#pxe-service=X86-64_EFI, "Install Linux", debian-installer/amd64/bootnetx64.efi
+
+# tftp server configs
+# needed for pxe booting, because the clients / nodes will download the initial kernel or bootloader via tftp
+enable-tftp
+tftp-root=/srv/tftp
+tftp-secure

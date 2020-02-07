@@ -5,3 +5,4 @@ homek8s_gateway_network_external_interface_name: wlan0
 homek8s_gateway_network_dns_upstream_servers:
   - "8.8.8.8"
   - "8.8.4.4"
+homek8s_gateway_provisioning_debian_release: buster

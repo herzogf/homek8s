@@ -34,6 +34,22 @@
   notify:
     - restart dnsmasq
 
+- name: Create tftp directory
+  file:
+    path: /srv/tftp
+    state: directory
+    mode: 'u=rwx,g=rx,o=rx'
+    owner: dnsmasq
+    group: nogroup
+
+- name: Download and unarchive debian netboot archive
+  unarchive:
+    remote_src: yes
+    src: https://debian.inf.tu-dresden.de/debian/dists/{{ homek8s_gateway_provisioning_debian_release }}/main/installer-amd64/current/images/netboot/netboot.tar.gz
+    dest: /srv/tftp
+    owner: dnsmasq
+    group: nogroup
+
 - name: Allow ipv4 forwarding for nodes
   sysctl:
     name: net.ipv4.ip_forward

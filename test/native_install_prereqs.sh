@@ -23,6 +23,7 @@ wget -O raspbian_lite_latest.zip https://downloads.raspberrypi.org/raspbian_lite
 unzip raspbian_lite_latest.zip
 rm -f raspbian_lite_latest.zip
 ln -s *.img raspbian_lite_latest.img
+#qemu-img resize raspbian_lite_latest.img +10G
 
 # make some modifications to the raspbian image for homek8s
 bootLoopDevice="$(sudo kpartx -avs raspbian_lite_latest.img | head -n 1 | awk '{print $3}')"
