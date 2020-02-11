@@ -64,6 +64,10 @@ homek8s_gateway_network_dhcp_range_from=100
 #last number for the last ip address segment of the dhcp range
 homek8s_gateway_network_dhcp_range_to=110
 
+#Specify the domain for the local homek8s network, default is homek8s.local
+#i.e. "k8s-node-1" will be available via "k8s-node-1" and "k8s-node-1.homek8s.local"
+homek8s_gateway_network_dns_local_domain=homek8s.local
+
 #Specify the keyboard layout for all nodes
 #homek8s_os_base_xkblayout=de
 
@@ -73,3 +77,7 @@ homek8s_os_base_timezone=Europe/Berlin
 #Enable / disable apt-get upgrade during node provisioning
 #defaults to true (upgrade performed)
 homek8s_os_base_apt_upgrade=false
+
+#Set to true to poweroff nodes after the debian preseed installation over pxe instead of rebooting
+#(useful for QEMU dev test environment where we have to specify a different boot method after install)
+homek8s_gateway_debian_preseed_poweroff=true

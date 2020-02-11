@@ -49,6 +49,46 @@
     dest: /srv/tftp
     owner: dnsmasq
     group: nogroup
+  notify:
+    - restart dnsmasq
+
+- name: Copy pxelinux default conf file
+  template:
+    src: pxelinux.cfg.default.j2
+    dest: /srv/tftp/pxelinux.cfg/default
+    owner: dnsmasq
+    group: nogroup
+    mode: u=rw,g=r,o=r
+    backup: yes
+  notify:
+    - restart dnsmasq
+
+- name: Copy debian auto install preseed file
+  template:
+    src: preseed.cfg.j2
+    dest: /srv/tftp/preseed.cfg
+    owner: dnsmasq
+    group: nogroup
+    mode: u=rw,g=r,o=r
+    backup: yes
+  notify:
+    - restart dnsmasq
+
+- name: Create homek8s config directory
+  file:
+    path: /etc/homek8s
+    state: directory
+    mode: 'u=rwx,g=rx,o='
+    owner: root
+    group: root
+
+- name: Add dhcp hook script to register new nodes
+  copy:
+    src: dhcp_hook.sh
+    dest: /etc/homek8s/dhcp_hook.sh  
+    mode: 'u=rwx,g=rx,o='
+    owner: root
+    group: root
 
 - name: Allow ipv4 forwarding for nodes
   sysctl:

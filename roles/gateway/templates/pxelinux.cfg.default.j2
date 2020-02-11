@@ -1,0 +1,5 @@
+DEFAULT install
+  SAY Now installing debian with preseed..
+LABEL install
+  KERNEL debian-installer/amd64/linux
+  APPEND auto=true priority=critical preseed/url=tftp://{{ homek8s_gateway_network_switch_interface_ip }}/preseed.cfg initrd=debian-installer/amd64/initrd.gz ---
