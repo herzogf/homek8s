@@ -7,6 +7,9 @@ listen-address={{ homek8s_gateway_network_switch_interface_ip }}
 bind-interfaces
 no-resolv
 
+domain={{ homek8s_gateway_network_dns_local_domain }}
+expand-hosts
+
 # set upstream dns servers to forward dns requests to
 {% for dns_server in homek8s_gateway_network_dns_upstream_servers %}
 server={{ dns_server }}
@@ -26,6 +29,9 @@ dhcp-match=set:X86-64_EFI,option:client-arch,7
 dhcp-boot=tag:X86-64_EFI,debian-installer/amd64/bootnetx64.efi
 #pxe-service=x86PC, "Install Linux", pxelinux
 #pxe-service=X86-64_EFI, "Install Linux", debian-installer/amd64/bootnetx64.efi
+
+# call script to register new dhcp lease (i.e. homek8s node)
+dhcp-script=/etc/homek8s/dhcp_hook.sh
 
 # tftp server configs
 # needed for pxe booting, because the clients / nodes will download the initial kernel or bootloader via tftp

@@ -7,9 +7,9 @@
 OLD_PWD="$(pwd)"
 cd "$(dirname "$0")"
 
-qemu-system-x86_64 -m 1024 \
+kvm -m 1024 -smp 2 \
   -hda tmp/master.qcow2 \
-  -net nic,vlan=1 -net socket,vlan=1,mcast=230.0.0.1:1234
+  -net nic,vlan=1,macaddr=FA:2D:37:78:7F:CF -net socket,vlan=1,mcast=230.0.0.1:1234
 
 # login in this console with user pi / password raspberry
 # or

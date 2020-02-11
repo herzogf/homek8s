@@ -1,3 +1,4 @@
 ---
     dependencies:
+    - role: gen_ssh_key
     - role: os_base

@@ -6,10 +6,17 @@ Does nothing useful at the moment :-)
 
 Sample start command:
 ```bash
+# create local homek8s directory containing the ansible inventory file "hosts".
+# also used by the ansible playbooks for writing cluster metadata in it, e.g generated ssh keys
+mkdir -p my_homek8s ; cd my_homek8s
+
+# copy sample inventory file and edit for your home network
+cp ../inventory/hosts.example hosts ; vi hosts
+
 # dry-run
-docker run -it --rm -v $(pwd)/hosts:/etc/ansible/hosts -v ${HOME}/.ssh:/root/.ssh homek8s/homek8s playbooks/site.yml --check -vvv
+docker run -it --rm -v $(pwd):/homek8s -v ${HOME}/.ssh:/root/.ssh homek8s/homek8s playbooks/site.yml --check -vvv
 # run site.yml playbook
-docker run -it --rm -v $(pwd)/hosts:/etc/ansible/hosts -v ${HOME}/.ssh:/root/.ssh homek8s/homek8s
+docker run -it --rm -v $(pwd):/homek8s -v ${HOME}/.ssh:/root/.ssh homek8s/homek8s
 ```
 
 ## Testing

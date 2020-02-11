@@ -1,0 +1,10 @@
+---
+- name: Generate ssh key for passwordless login to gateway and nodes
+  openssh_keypair:
+    path: /homek8s/id_rsa
+  run_once: true
+  delegate_to: 127.0.0.1
+  register: homek8s_gen_ssh_key_gen_result
+
+- name: Set public ssh key as fact
+  set_fact: homek8s_gen_ssh_key_public={{ homek8s_gen_ssh_key_gen_result.public_key  }}

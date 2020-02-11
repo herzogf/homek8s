@@ -11,6 +11,8 @@ cd "$(dirname "$0")"
 
 # run default site.yml playbook to provision a homek8s cluster to the qemu VMs.
 # we use --network host so that the docker container can access the gateway VM's ssh port via localhost:5022
-docker run -it --rm --network host -v $(pwd)/hosts.qemu:/etc/ansible/hosts homek8s/homek8s
+mkdir -p tmp/homek8s
+cp -f hosts.qemu tmp/homek8s/hosts
+docker run -it --rm --network host -v $(pwd)/tmp/homek8s:/homek8s homek8s/homek8s
 
 cd "$OLD_PWD"

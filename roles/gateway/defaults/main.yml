@@ -6,3 +6,5 @@ homek8s_gateway_network_dns_upstream_servers:
   - "8.8.8.8"
   - "8.8.4.4"
 homek8s_gateway_provisioning_debian_release: buster
+homek8s_gateway_debian_preseed_poweroff: False
+homek8s_gateway_network_dns_local_domain: homek8s.local

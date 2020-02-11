@@ -1,0 +1,63 @@
+# most standard lines are inspired from https://www.debian.org/releases/buster/example-preseed.txt
+# and https://salsa.debian.org/installer-team/netboot-assistant/blob/master/examples/preseed.cfg
+
+# we'll modify locale et.al. later in ansible
+d-i debian-installer/locale string en_US
+d-i keyboard-configuration/xkb-keymap select us
+
+# hostname and domain will be received from DHCP and take precedence
+# we need those 2 lines to prevent the questions
+d-i netcfg/get_hostname string unassigned-hostname
+d-i netcfg/get_domain string {{ homek8s_gateway_network_dns_local_domain }}
+
+d-i passwd/root-login boolean false
+#d-i passwd/root-password-crypted password !
+
+d-i apt-setup/non-free boolean false
+d-i apt-setup/contrib boolean true
+
+d-i mirror/country string manual
+d-i mirror/http/hostname string deb.debian.org
+d-i mirror/http/directory string /debian
+d-i mirror/http/proxy string
+
+d-i passwd/user-fullname string homek8s user
+d-i passwd/username string homek8s
+d-i passwd/user-password-crypted password !
+
+d-i partman-auto/disk string
+
+### Regular partitions:
+d-i partman-auto/method string regular
+d-i partman-auto/choose_recipe select atomic
+d-i partman-partitioning/confirm_write_new_label boolean true
+d-i partman/choose_partition select finish
+d-i partman/confirm boolean true
+d-i partman/confirm_nooverwrite boolean true
+d-i partman-basicfilesystems/no_swap boolean false
+d-i partman-lvm/device_remove_lvm boolean true
+
+tasksel tasksel/first multiselect standard, ssh-server
+
+d-i grub-installer/bootdev string default
+d-i grub-installer/with_other_os boolean true
+
+# add ssh pub key to authorized_keys and grand passwordless sudo and delete password for user homek8s
+# see https://github.com/mojotech/mojo-images/blob/ac278c248c39b6c55047b713ebc919e1931825f1/config/preseed.cfg#L53
+# see https://salsa.debian.org/installer-team/netboot-assistant/blob/master/examples/preseed.cfg#L107
+# in addition we set the dhcp lient-identifier to "01:<MAC address>" so the installed system uses the same
+# client-id as the pxe debian installer (otherwise the installed debian gets a different ip after reboot)
+# see https://github.com/tsugliani/packer-vsphere-templates/blob/5bd06b553f4ee270aaa607c8508981cb52dfd807/scripts/Linux/Debian/preseed.cfg#L38
+
+d-i preseed/late_command string \
+      in-target mkdir -p /home/homek8s/.ssh && \
+      echo "{{ homek8s_gen_ssh_key_public }}" >> /target/home/homek8s/.ssh/authorized_keys ; \
+      in-target chown -R homek8s:homek8s /home/homek8s/.ssh/ ; \
+      in-target chmod -R u=rwX,o=,g= /home/homek8s/.ssh/ ; \
+      echo "homek8s ALL=(ALL:ALL) NOPASSWD:ALL" > /target/etc/sudoers.d/homek8s && in-target chmod 0440 /etc/sudoers.d/homek8s ; \
+      echo "send dhcp-client-identifier 01:$(cat /sys/class/net/e*/address | head -n 1);" >> /target/etc/dhcp/dhclient.conf ;
+
+d-i finish-install/reboot_in_progress note
+{% if homek8s_gateway_debian_preseed_poweroff | default(False) | bool %}
+d-i debian-installer/exit/poweroff boolean true
+{% endif %}
