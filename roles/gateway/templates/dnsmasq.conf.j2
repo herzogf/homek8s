@@ -31,7 +31,7 @@ dhcp-boot=tag:X86-64_EFI,debian-installer/amd64/bootnetx64.efi
 #pxe-service=X86-64_EFI, "Install Linux", debian-installer/amd64/bootnetx64.efi
 
 # call script to register new dhcp lease (i.e. homek8s node)
-dhcp-script=/etc/homek8s/dhcp_hook.sh
+dhcp-script={{ homek8s_gateway_base_dir }}/scripts/dhcp_hook.sh
 
 # tftp server configs
 # needed for pxe booting, because the clients / nodes will download the initial kernel or bootloader via tftp

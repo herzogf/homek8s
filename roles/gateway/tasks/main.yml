@@ -34,6 +34,24 @@
   notify:
     - restart dnsmasq
 
+# the above pre-seed task creates a duplicate entry for the master if a master entry is already there
+# example master entry: 192.168.2.101 k8s-node-101 k8s-master-1
+# duplicate created by pre-seed task: 192.168.2.101 k8s-node-101
+# we need to delete this last / duplicate row
+# the following task finds the master entry and returns a stripped down version (only the ip + node-name part)
+- name: Determine master entry in /etc/hosts
+  command: grep -oP ".+(?= k8s-master-[0-9]+)" /etc/hosts
+  register: gateway_master_entry_result
+  changed_when: False
+  failed_when: False
+
+- name: Delete duplicate entry for master in /etc/hosts
+  lineinfile:
+    path: /etc/hosts
+    state: absent
+    regexp: "^{{ gateway_master_entry_result.stdout }}$"
+  when: (gateway_master_entry_result.rc == 0) and (gateway_master_entry_result.stdout | length > 0)
+
 - name: Create tftp directory
   file:
     path: /srv/tftp
@@ -74,18 +92,34 @@
   notify:
     - restart dnsmasq
 
-- name: Create homek8s config directory
+- name: Create homek8s base directory
   file:
-    path: /etc/homek8s
+    path: "{{ homek8s_gateway_base_dir }}"
+    state: directory
+    mode: 'u=rwx,g=rx,o='
+    owner: root
+    group: root
+
+- name: Create homek8s scripts directory
+  file:
+    path: "{{ homek8s_gateway_base_dir }}/scripts"
+    state: directory
+    mode: 'u=rwx,g=rx,o='
+    owner: root
+    group: root
+
+- name: Create homek8s data and new_nodes directory
+  file:
+    path: "{{ homek8s_gateway_base_dir }}/data/new_nodes"
     state: directory
     mode: 'u=rwx,g=rx,o='
     owner: root
     group: root
 
 - name: Add dhcp hook script to register new nodes
-  copy:
-    src: dhcp_hook.sh
-    dest: /etc/homek8s/dhcp_hook.sh  
+  template:
+    src: dhcp_hook.sh.j2
+    dest: "{{ homek8s_gateway_base_dir }}/scripts/dhcp_hook.sh"
     mode: 'u=rwx,g=rx,o='
     owner: root
     group: root
@@ -141,3 +175,13 @@
     path: /etc/rc.local
     line: iptables-restore < /etc/iptables.ipv4.nat
     insertbefore: exit 0
+
+- name: Copy ssh key pair to give gateway access to nodes
+  copy:
+    src: "{{ item }}"
+    dest: "{{ homek8s_gateway_base_dir }}/"
+    owner: "root"
+    mode: 'u=rw,g=,o='
+  loop:
+    - "/homek8s/id_rsa"
+    - "/homek8s/id_rsa.pub"
