@@ -1,4 +1,15 @@
 ---
+
+- name: Grant ssh key access for generated homek8s key pair
+  authorized_key:
+    user: "{{ ansible_user_id }}"
+    state: present
+    key: "{{ homek8s_gen_ssh_key_public }}"
+
+# later move to the end of this file
+- import_tasks: install_node_provisioning_scripts.yml
+- pause:
+
 - name: Install dnsmasq
   apt:
     name: dnsmasq
@@ -175,13 +186,3 @@
     path: /etc/rc.local
     line: iptables-restore < /etc/iptables.ipv4.nat
     insertbefore: exit 0
-
-- name: Copy ssh key pair to give gateway access to nodes
-  copy:
-    src: "{{ item }}"
-    dest: "{{ homek8s_gateway_base_dir }}/"
-    owner: "root"
-    mode: 'u=rw,g=,o='
-  loop:
-    - "/homek8s/id_rsa"
-    - "/homek8s/id_rsa.pub"

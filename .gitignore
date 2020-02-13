@@ -2,3 +2,6 @@
 hosts
 temp
 tmp
+
+#IDE files
+.vscode

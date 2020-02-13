@@ -1,0 +1,10 @@
+[Unit]
+Description=homek8s provisioner timer
+Requires=homek8s-provisioner.service
+
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec={{ homek8s_gateway_node_provisioning_systemd_timer_interval }}
+
+[Install]
+WantedBy=timers.target

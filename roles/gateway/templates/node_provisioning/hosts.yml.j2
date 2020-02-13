@@ -1,0 +1,24 @@
+all:
+  children:
+    gateway:
+      hosts:
+        localhost:
+          ansible_connection: local
+    homek8s:
+      children:
+        masters:
+          hosts:
+        new_masters:
+          hosts:
+        nodes:
+          hosts:
+        new_nodes:
+          hosts:
+      vars:
+        ansible_user: homek8s
+        ansible_ssh_private_key_file: {{ homek8s_gateway_base_dir }}/id_rsa
+        ansible_become: yes
+        ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+
