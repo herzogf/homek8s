@@ -3,5 +3,5 @@ Description=homek8s provisioner script
 ConditionDirectoryNotEmpty={{ homek8s_gateway_base_dir }}/data/new_nodes
 
 [Service]
-ExecStart={{ homek8s_gateway_base_dir }}/scripts/add_new_nodes.py
+ExecStart={{ homek8s_gateway_base_dir }}/scripts/add_new_nodes.py "{{ homek8s_gateway_base_dir }}"
 WorkingDirectory={{ homek8s_gateway_base_dir }}

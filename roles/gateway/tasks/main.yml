@@ -6,10 +6,6 @@
     state: present
     key: "{{ homek8s_gen_ssh_key_public }}"
 
-# later move to the end of this file
-- import_tasks: install_node_provisioning_scripts.yml
-- pause:
-
 - name: Install dnsmasq
   apt:
     name: dnsmasq
@@ -40,7 +36,7 @@
 - name: Pre-seed /etc/hosts file with all possible k8s node names
   lineinfile:
     path: /etc/hosts
-    line: "{{ homek8s_gateway_network_dhcp_range_prefix }}{{ item }} k8s-node-{{ item }}"
+    line: "{{ homek8s_gateway_network_dhcp_range_prefix }}{{ item }}\tk8s-node-{{ item }}"
   with_sequence: start={{ homek8s_gateway_network_dhcp_range_from }} end={{ homek8s_gateway_network_dhcp_range_to }}
   notify:
     - restart dnsmasq
@@ -186,3 +182,5 @@
     path: /etc/rc.local
     line: iptables-restore < /etc/iptables.ipv4.nat
     insertbefore: exit 0
+
+- import_tasks: install_node_provisioning_scripts.yml

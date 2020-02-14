@@ -10,3 +10,4 @@ homek8s_gateway_debian_preseed_poweroff: False
 homek8s_gateway_network_dns_local_domain: homek8s.local
 homek8s_gateway_base_dir: /homek8s
 homek8s_gateway_node_provisioning_systemd_timer_interval: 1min
+homek8s_k3s_version: v1.17.2+k3s1

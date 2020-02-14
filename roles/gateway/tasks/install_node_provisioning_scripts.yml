@@ -1,11 +1,13 @@
 ---
 
-- name: Install ansible prereqs
+- name: Install ansible and python prereqs
   apt:
     name: "{{ item }}"
   loop:
     - gnupg
     - python3-apt
+    - python3-pip
+    - python3-yaml
 
 - name: Add ansible debian repo
   apt_repository:
@@ -17,10 +19,10 @@
   apt:
     name: ansible
 
-#- name: Install pyyaml python module
-#  pip:
-#    name: pyyaml
-#    executable: pip3
+- name: Install python-hosts python module
+  pip:
+    name: python-hosts
+    executable: pip3
 
 - name: Copy add_new_nodes.py script
   copy:
@@ -64,6 +66,22 @@
     group: root
     mode: u=rw,g=,o=
     force: no
+
+- name: Create ansible group_vars directory
+  file:
+    path: "{{ homek8s_gateway_base_dir }}/group_vars"
+    state: directory
+    mode: 'u=rwx,g=,o='
+    owner: root
+    group: root
+
+- name: Copy group_vars yaml file
+  template:
+    src: node_provisioning/group_vars/homek8s.yml.j2
+    dest: "{{ homek8s_gateway_base_dir }}/group_vars/homek8s.yml"
+    owner: root
+    group: root
+    mode: u=rw,g=,o=
 
 - name: Copy ssh key pair to give gateway access to nodes
   copy:
