@@ -9,6 +9,7 @@ import os
 import copy
 import re
 import yaml
+import subprocess
 from typing import List
 from python_hosts import Hosts, HostsEntry
 
@@ -147,7 +148,9 @@ def add_new_master(base_dir, cleaned_new_nodes):
   inventory = set_hosts_for_inventory_group(inventory, 'new_masters', new_masters)
   write_inventory(inventory, inventory_path)
 
-  #ToDo: provision new master
+  rc=subprocess.call(['/usr/bin/ansible-playbook', '-i', base_dir + '/hosts.yml', base_dir + '/playbooks/provision_new_master.yml'], bufsize=0)
+  if rc != 0:
+    sys.exit("ansible playbook provision_new_master.yml failed, please see logs in journald with 'journalctl -u homek8s-provisioner.service'")
   
   # add new masters to /etc/hosts (e.g. "192.168.2.100 k8s-node-100 k8s-master-1")
   add_new_masters_to_etc_hosts(new_masters)
@@ -174,7 +177,9 @@ def add_new_nodes(base_dir, new_nodes_from_markers):
   inventory = set_hosts_for_inventory_group(inventory, 'new_nodes', new_nodes)
   write_inventory(inventory, inventory_path)
 
-  #ToDo: provision new nodes
+  rc=subprocess.call(['/usr/bin/ansible-playbook', '-i', base_dir + '/hosts.yml', base_dir + '/playbooks/provision_new_nodes.yml'], bufsize=0)
+  if rc != 0:
+    sys.exit("ansible playbook site.yml failed, please see logs in journald with 'journalctl -u homek8s-provisioner.service'")
 
   inventory = move_hosts_from_inventory_group_to_group(inventory, 'new_nodes', 'nodes')
   write_inventory(inventory, inventory_path)
@@ -196,7 +201,9 @@ if __name__ == "__main__":
     sys.exit(0)
   
   if not current_masters:
+    print("Adding new master, picking one from new nodes list: {}".format(cleaned_new_nodes))
     cleaned_new_nodes = add_new_master(get_basedir(), cleaned_new_nodes)
   
   if cleaned_new_nodes:
+    print("Adding new nodes, new nodes list: {}".format(cleaned_new_nodes))
     add_new_nodes(get_basedir(), cleaned_new_nodes)

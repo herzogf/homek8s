@@ -1,0 +1,12 @@
+---
+- hosts: homek8s
+  roles:
+    - k3s_binary
+
+- hosts: masters
+  roles:
+    - k3s/master
+
+- hosts: nodes
+  roles:
+    - k3s/node

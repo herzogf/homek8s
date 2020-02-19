@@ -1,2 +1,9 @@
 ---
-homek8s_k3_version: "{{ homek8s_k3s_version }}"
+# variables needed by k3s contrib/ansible roles
+# see https://github.com/rancher/k3s/blob/master/contrib/ansible/group_vars/all.yml
+#k3s_version: "{{ homek8s_k3s_version }}"
+systemd_dir: /etc/systemd/system
+homek8s_gateway_base_dir: "{{ homek8s_gateway_base_dir }}"
+{% raw %}
+master_ip: "{{ hostvars[groups['masters'][0]]['ansible_host'] | default(groups['masters'][0]) }}"
+{% endraw %}

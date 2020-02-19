@@ -32,31 +32,10 @@
     owner: root
     group: root
 
-# ToDo: for the next two tasks we should use synchronize (rsync) instead of copy
-# Problem: currently (ansible 2.9 with python 2 from PPA) this crashes with
-# broken pipe error, see https://github.com/ansible/ansible/issues/56629
-# The fix would be to use ansible with python 3 but the PPA packages
-# only package python 2, see https://github.com/ansible/ansible/issues/57342
-# When the ansible PPA package updates to python3 we change copy to synchronize
-
-- name: Copy k3s provisioning ansible playbooks
-  copy:
-    src: node_provisioning/playbooks
+- name: Copy ansible playbooks and roles for homek8s and k3s
+  unarchive:
+    src: /tmp/gateway-ansible.tar.gz
     dest: "{{ homek8s_gateway_base_dir }}/"
-    owner: root
-    group: root
-    mode: u=rwX,g=rX,o=
-
-# copy all homek8s roles from the homek8s container image to the gateway
-# (because we have some roles needed in the homek8s container image
-# as well as on the gateway to provision new nodes, e.g. role os_base)
-- name: Copy homek8s ansible roles
-  copy:
-    src: /etc/ansible/roles
-    dest: "{{ homek8s_gateway_base_dir }}/playbooks/"
-    owner: root
-    group: root
-    mode: u=rwX,g=rX,o=
 
 - name: Copy initial ansible inventory file for nodes
   template:
@@ -75,13 +54,30 @@
     owner: root
     group: root
 
-- name: Copy group_vars yaml file
+- name: Copy group_vars homek8s yaml file
   template:
     src: node_provisioning/group_vars/homek8s.yml.j2
     dest: "{{ homek8s_gateway_base_dir }}/group_vars/homek8s.yml"
     owner: root
     group: root
     mode: u=rw,g=,o=
+
+- name: Copy group_vars new_masters yaml file
+  template:
+    src: node_provisioning/group_vars/new_masters.yml.j2
+    dest: "{{ homek8s_gateway_base_dir }}/group_vars/new_masters.yml"
+    owner: root
+    group: root
+    mode: u=rw,g=,o=
+
+- name: Download k3s binary
+  get_url:
+    url: https://github.com/rancher/k3s/releases/download/{{ homek8s_k3s_version }}/k3s
+    dest: "{{ homek8s_gateway_base_dir }}/k3s" 
+    owner: root
+    group: root
+    mode: 755
+    timeout: "{{ homek8s_gateway_k3s_download_timeout }}"
 
 - name: Copy ssh key pair to give gateway access to nodes
   copy:

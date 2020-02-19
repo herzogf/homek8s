@@ -1,0 +1,6 @@
+---
+
+- hosts: new_masters
+  roles:
+    - k3s_binary
+    - k3s/master
