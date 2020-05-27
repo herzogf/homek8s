@@ -1,0 +1,23 @@
+---
+# check if all hosts are available and fail fast if masters or new_nodes are not up
+# we have to see whether that's a good idea as one failing new_node causes the whole provisioning to stop
+# play taken from https://github.com/ansible/ansible/issues/18782#issuecomment-427645602
+- name: Check SSH hosts reachability.
+  hosts: masters:new_nodes
+  tasks:
+    - name: Simple command (ping).
+      ping:
+    - name: Check if ansible_play_hosts == ansible_play_hosts_all (means UNREACHABLE hosts detected)
+      run_once: True
+      assert:
+        that:
+          - ansible_play_hosts == ansible_play_hosts_all
+
+- hosts: masters
+  roles:
+    - k3s/master
+
+- hosts: new_nodes
+  roles:
+    - k3s_binary
+    - k3s/node

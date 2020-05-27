@@ -1,0 +1,4 @@
+---
+{% raw %}
+master_ip: "{{ hostvars[groups['new_masters'][0]]['ansible_host'] | default(groups['new_masters'][0]) }}"
+{% endraw %}

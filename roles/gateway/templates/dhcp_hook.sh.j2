@@ -1,0 +1,25 @@
+#!/bin/bash
+
+##############################################################
+# script called by dnsmasq when dhcp leases are created.
+# creates a marker file for every new dhcp lease which is then
+# picked up by our node provisioning job.
+##############################################################
+
+# sample command line arguments: add fa:2d:37:78:7f:cf 192.168.2.106 k8s-node-106
+# i.e.: <operation> <MAC address> <ip address> <hostname>
+
+HOMEK8S_BASE_DIR="{{ homek8s_gateway_base_dir }}"
+
+{% raw %}
+if [[ "$1" == "add" && "$4" == "k8s-node-"* ]] ; then
+  # only create the new-node marker file but do not start the homek8s-provisioner service yet
+  # explanation: the first dhcp-request (new lease) comes from the debian installer so the node is not
+  # yet ready for provisioning by homek8s
+  touch "${HOMEK8S_BASE_DIR}/data/new_nodes/${4}"
+elif [[ "$1" == "old" && -d "${HOMEK8S_BASE_DIR}/data/new_nodes" && -n "$(ls -A "${HOMEK8S_BASE_DIR}/data/new_nodes")" ]] ; then
+  # node was rebooted (probably first time after debian installation) so we check whether there's a new-node marker file
+  # and start the homek8s-provisioner service
+  systemctl start homek8s-provisioner.service
+fi
+{% endraw %}

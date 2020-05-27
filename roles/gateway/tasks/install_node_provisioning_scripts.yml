@@ -1,0 +1,108 @@
+---
+
+- name: Install ansible and python prereqs
+  apt:
+    name: "{{ item }}"
+  loop:
+    - gnupg
+    - python3-apt
+    - python3-pip
+    - python3-yaml
+
+- name: Add ansible debian repo
+  apt_repository:
+    repo: ppa:ansible/ansible
+    codename: bionic
+    update_cache: yes
+
+- name: Install ansible
+  apt:
+    name: ansible
+
+- name: Install python-hosts python module
+  pip:
+    name: python-hosts
+    executable: pip3
+
+- name: Copy add_new_nodes.py script
+  copy:
+    src: node_provisioning/add_new_nodes.py
+    dest: "{{ homek8s_gateway_base_dir }}/scripts/add_new_nodes.py"
+    mode: 'u=rwx,g=rx,o='
+    owner: root
+    group: root
+
+- name: Copy ansible playbooks and roles for homek8s and k3s
+  unarchive:
+    src: /tmp/gateway-ansible.tar.gz
+    dest: "{{ homek8s_gateway_base_dir }}/"
+
+- name: Copy initial ansible inventory file for nodes
+  template:
+    src: node_provisioning/hosts.yml.j2
+    dest: "{{ homek8s_gateway_base_dir }}/hosts.yml"
+    owner: root
+    group: root
+    mode: u=rw,g=,o=
+    force: no
+
+- name: Create ansible group_vars directory
+  file:
+    path: "{{ homek8s_gateway_base_dir }}/group_vars"
+    state: directory
+    mode: 'u=rwx,g=,o='
+    owner: root
+    group: root
+
+- name: Copy group_vars homek8s yaml file
+  template:
+    src: node_provisioning/group_vars/homek8s.yml.j2
+    dest: "{{ homek8s_gateway_base_dir }}/group_vars/homek8s.yml"
+    owner: root
+    group: root
+    mode: u=rw,g=,o=
+
+- name: Copy group_vars new_masters yaml file
+  template:
+    src: node_provisioning/group_vars/new_masters.yml.j2
+    dest: "{{ homek8s_gateway_base_dir }}/group_vars/new_masters.yml"
+    owner: root
+    group: root
+    mode: u=rw,g=,o=
+
+- name: Download k3s binary
+  get_url:
+    url: https://github.com/rancher/k3s/releases/download/{{ homek8s_k3s_version }}/k3s
+    dest: "{{ homek8s_gateway_base_dir }}/k3s" 
+    owner: root
+    group: root
+    mode: 755
+    timeout: "{{ homek8s_gateway_k3s_download_timeout }}"
+
+- name: Copy ssh key pair to give gateway access to nodes
+  copy:
+    src: "{{ item }}"
+    dest: "{{ homek8s_gateway_base_dir }}/"
+    owner: "root"
+    mode: 'u=rw,g=,o='
+  loop:
+    - "/homek8s/id_rsa"
+    - "/homek8s/id_rsa.pub"
+
+- name: Copy homek8s systemd timer and service units for new-node provisioning
+  template:
+    src: "{{ item.src }}"
+    dest: /etc/systemd/system/{{ item.dest_filename }}
+    owner: root
+    group: root
+    mode: u=rw,g=r,o=r
+  loop:
+    - { src: "node_provisioning/homek8s-provisioner.timer.j2", dest_filename: "homek8s-provisioner.timer" }
+    - { src: "node_provisioning/homek8s-provisioner.service.j2", dest_filename: "homek8s-provisioner.service" }
+
+- name: Enable and start the homek8s-provisioner timer unit
+  systemd:
+    name: homek8s-provisioner.timer
+    state: started
+    enabled: yes
+    daemon_reload: yes

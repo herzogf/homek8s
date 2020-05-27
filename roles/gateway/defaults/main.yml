@@ -8,3 +8,7 @@ homek8s_gateway_network_dns_upstream_servers:
 homek8s_gateway_provisioning_debian_release: buster
 homek8s_gateway_debian_preseed_poweroff: False
 homek8s_gateway_network_dns_local_domain: homek8s.local
+homek8s_gateway_base_dir: /homek8s
+homek8s_gateway_node_provisioning_systemd_timer_interval: 1min
+#timeout in seconds for get_url task to download k3s binary
+homek8s_gateway_k3s_download_timeout: 1200

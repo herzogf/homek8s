@@ -4,29 +4,8 @@
 [gateway]
 rpi-gateway ansible_ssh_host=localhost ansible_ssh_port=5022 ansible_user=pi ansible_ssh_pass=raspberry ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
 
-[masters]
-x86-k8s-master-1
-
-[nodes]
-#FIXME: generate ssh key on gateway and ssh-copy-id
-x86-k8s-master-1 ansible_ssh_host=192.168.2.10
-x86-k8s-node-1   ansible_ssh_host=192.168.2.11
-x86-k8s-node-2   ansible_ssh_host=192.168.2.12
-
-[nfs]
-x86-k8s-master-1
-
 [homek8s:children]
 gateway
-masters
-nodes
-nfs
-
-[nodes:vars]
-#Specify the jump server to to connect to the nodes, i.e. the gateway
-ansible_ssh_common_args="-J pi@localhost:5022"
-#Specify the user on the nodes for the ssh connection
-ansible_user=pi
 
 [homek8s:vars]
 ########################################################
@@ -36,6 +15,9 @@ ansible_user=pi
 #(i.e. parameters set in this example inventory are mandatory)
 
 ansible_become=yes
+
+#Specify the k3s version (release) to use
+homek8s_k3s_version=v1.17.2+k3s1
 
 #The following parameters assume that the dedicated network switch
 #covers the IP range 192.168.2.1 - 192.168.2.255 with

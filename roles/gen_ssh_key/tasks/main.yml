@@ -7,4 +7,7 @@
   register: homek8s_gen_ssh_key_gen_result
 
 - name: Set public ssh key as fact
-  set_fact: homek8s_gen_ssh_key_public={{ homek8s_gen_ssh_key_gen_result.public_key  }}
+  set_fact: homek8s_gen_ssh_key_public={{ homek8s_gen_ssh_key_gen_result.public_key }}
+
+- name: Set private ssh key filename as fact
+  set_fact: homek8s_gen_ssh_key_private_filename={{ homek8s_gen_ssh_key_gen_result.filename }}

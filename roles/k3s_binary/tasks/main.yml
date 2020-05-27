@@ -1,0 +1,14 @@
+---
+# inspired by https://github.com/rancher/k3s/blob/master/contrib/ansible/roles/download/tasks/main.yml
+- name: Delete k3s if already present
+  file:
+    path: /usr/local/bin/k3s
+    state: absent
+
+- name: Copy k3s binary from gateway to node
+  copy:
+    src: "{{ homek8s_gateway_base_dir }}/k3s" 
+    dest: /usr/local/bin/k3s
+    owner: root
+    group: root
+    mode: 755
